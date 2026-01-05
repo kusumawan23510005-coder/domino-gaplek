@@ -6,44 +6,29 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    public function up(): void
-    {
-        Schema::create('rooms', function (Blueprint $table) {
-            $table->id();
-            
-            // Kode Unik Room (Misal: "A1B2") buat join
-            $table->string('room_code')->unique();
-            
-            // Siapa Host (Player 1) & Guest (Player 2)
-            $table->foreignId('host_id')->constrained('users');
-            $table->foreignId('guest_id')->nullable()->constrained('users');
-            
-            // Status Game: 'waiting', 'playing', 'finished'
-            $table->string('status')->default('waiting');
-            
-            // ID User yang sedang giliran jalan
-            $table->unsignedBigInteger('current_turn_id')->nullable();
-            
-            // Siapa pemenangnya (jika sudah selesai)
-            $table->unsignedBigInteger('winner_id')->nullable();
+    public function up()
+{
+    Schema::create('rooms', function (Blueprint $table) {
+        $table->id();
+        $table->string('room_code')->unique();
+        $table->foreignId('host_id')->constrained('users'); // User A
+        $table->foreignId('guest_id')->nullable()->constrained('users'); // User B
+        $table->string('status')->default('waiting'); // waiting, playing, finished
+        
+        // Data Kartu (JSON)
+        $table->json('board_cards')->nullable();
+        $table->json('host_hand')->nullable();
+        $table->json('guest_hand')->nullable();
 
-            // --- PENYIMPANAN DATA KARTU (JSON) ---
-            // Kartu di meja (List kartu yang sudah ditaruh)
-            $table->json('board_cards')->nullable();
-            
-            // Kartu di tangan Host
-            $table->json('host_hand')->nullable();
-            
-            // Kartu di tangan Guest
-            $table->json('guest_hand')->nullable();
-            
-            // Ujung kiri & kanan meja (untuk validasi)
-            $table->integer('left_end')->nullable();
-            $table->integer('right_end')->nullable();
+        // <--- TAMBAHAN PENTING (Ini yang bikin error kalau tidak ada)
+        $table->unsignedBigInteger('current_turn_id')->nullable(); // Siapa yang jalan
+        $table->integer('pass_count')->default(0); // Hitung berapa kali pass (buat gaplek)
+        $table->unsignedBigInteger('winner_id')->nullable(); // Siapa pemenangnya
+        // <--- SELESAI TAMBAHAN
 
-            $table->timestamps();
-        });
-    }
+        $table->timestamps();
+    });
+}
 
     public function down(): void
     {

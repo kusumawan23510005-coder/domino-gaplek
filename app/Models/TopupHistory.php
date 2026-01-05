@@ -9,13 +9,13 @@ class TopupHistory extends Model
 {
     use HasFactory;
 
+    // PENTING: Sambungkan ke tabel yang baru kamu buat migrasinya
+    protected $table = 'topup_histories';
 
-    protected $table = 'topup_history';
-    
     protected $fillable = [
         'user_id',
-        'amount',
-        'method',
-        'description'
+        'amount',      // Ini adalah jumlah XP yang didapat
+        'method',      // Contoh: 'quest', 'voucher', 'admin_gift'
+        'description'  // Contoh: 'Hadiah naik level'
     ];
 }

@@ -10,30 +10,34 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-{
-    Schema::create('topup_history', function (Blueprint $table) {
-        $table->id();
+    {
+        // PENTING: Saya ubah nama tabel jadi jamak 'topup_histories' 
+        // karena standar Laravel mengharuskan nama tabel jamak (plural).
+        // Jika tetap 'topup_history' (singular), nanti Model kamu bingung nyarinya.
+        Schema::create('topup_histories', function (Blueprint $table) {
+            $table->id();
 
-        // relasi ke user
-        $table->unsignedBigInteger('user_id');
-        $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            // Relasi ke user (Syntax modern & lebih aman)
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
 
-        // jumlah koin
-        $table->integer('amount');
+            // Jumlah koin/XP
+            $table->integer('amount');
 
-        // metode top up
-        $table->enum('method', ['button', 'voucher', 'admin', 'daily']);
+            // --- PERUBAHAN UTAMA DI SINI ---
+            // DULU: $table->enum('method', ['button', 'voucher',...]); -> INI MENGIKAT LEHERMU
+            // SEKARANG: String bebas. Bisa diisi 'gameplay', 'quest', 'admin', terserah.
+            $table->string('method');
 
-        // deskripsi opsional
-        $table->text('description')->nullable();
+            // Deskripsi
+            $table->text('description')->nullable();
 
-        $table->timestamps();
-    });
-}
+            $table->timestamps();
+        });
+    }
 
-public function down(): void
-{
-    Schema::dropIfExists('topup_history');
-}
+    public function down(): void
+    {
+        Schema::dropIfExists('topup_histories');
+    }
 
 };

@@ -10,28 +10,36 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-{
-    Schema::create('match_history', function (Blueprint $table) {
-        $table->id();
+    {
+        // PERBAIKAN 1: Nama tabel pakai akhiran 'ies' (jamak)
+        Schema::create('match_histories', function (Blueprint $table) {
+            $table->id();
 
-        // room tempat pertandingan
-        $table->unsignedBigInteger('room_id');
-        $table->foreign('room_id')->references('id')->on('rooms')->onDelete('cascade');
+            // ID User yang main (Wajib ada)
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
 
-        // pemenang pertandingan
-        $table->unsignedBigInteger('winner_id');
-        $table->foreign('winner_id')->references('id')->on('users')->onDelete('cascade');
+            // Hasil: 'win', 'lose', atau 'draw'
+            $table->string('result');
 
-        // poin kemenangan (jumlah pip lawan dsb)
-        $table->integer('points')->default(0);
+            // Berapa XP yang didapat (Bisa positif atau negatif)
+            $table->integer('xp_change')->default(0);
 
-        $table->timestamps();
-    });
-}
+            // Keterangan: Misal "VS Bot" atau "Online Room X"
+            // Ini penting biar tau history ini dari game apa
+            $table->string('desc')->nullable();
 
-public function down(): void
-{
-    Schema::dropIfExists('match_history');
-}
+            // room_id kita hapus atau buat nullable (opsional) karena VS Bot tidak punya room_id
+            // $table->foreignId('room_id')->nullable()->constrained('rooms'); 
 
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('match_histories');
+    }
 };
